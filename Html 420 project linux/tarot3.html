@@ -4,7 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tirada de Tarot — Mazo Completo (1 y 7, invertidas, copiar & PDF)</title>
-<button id="inicioBtn" style="background:var(--accent);color:#fff;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;">Inicio</button>
+<!-- i18next CDN -->
+<script src="https://unpkg.com/i18next@23.7.7/dist/umd/i18next.min.js"></script>
+<script src="https://unpkg.com/i18next@23.7.7/dist/umd/i18next.min.js"></script>
+<style>
+  #langSelect {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--ink);
+    font-weight: 600;
+    z-index: 1000;
+  }
+</style>
+<select id="langSelect" style="position:absolute;top:16px;right:16px;padding:6px 12px;border-radius:8px;background:var(--panel);color:var(--ink);font-weight:600;">
+  <option value="es">Español</option>
+  <option value="en">English</option>
+  <option value="fr">Français</option>
+  <option value="de">Deutsch</option>
+  <option value="it">Italiano</option>
+</select>
 <style>
   :root{
     --bg:#0f1117; --panel:#151a22; --card:#1b2130; --ink:#e8eefc; --muted:#9aa6c5;
@@ -182,11 +204,14 @@
 <body>
   <header>
     <div style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;">
-      <div class="brand" style="display:flex;align-items:center;gap:18px;">
-        <div class="logo">🔮</div>
-        <div>
-          <h1 class="title">Tirada de Tarot — Mazo completo</h1>
-          <div class="subtitle">Carta diaria o tirada de 7, con invertidas opcionales, copiar y PDF sin librerías.</div>
+      <div style="display:flex;align-items:center;gap:18px;">
+        <button id="inicioBtn" class="btn" style="background:var(--accent);color:#fff;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;">Inicio</button>
+        <div class="brand" style="display:flex;align-items:center;gap:18px;">
+          <div class="logo">🔮</div>
+          <div>
+            <h1 class="title">Tirada de Tarot — Mazo completo</h1>
+            <div class="subtitle">Carta diaria o tirada de 7, con invertidas opcionales, copiar y PDF sin librerías.</div>
+          </div>
         </div>
       </div>
       <div style="margin-right:8px;">
@@ -205,31 +230,6 @@
       <label class="toggle"><input type="checkbox" id="revToggle"> Permitir cartas invertidas</label>
       <span class="hint">Consejo: clic en cualquier carta para ampliarla</span>
     </div>
-<script>
-// --- Google Translate compatibility for main buttons ---
-function isGoogleTranslate() {
-  return window.location.href.includes('translate.google.com');
-}
-function runInTopFrame(fn) {
-  if (isGoogleTranslate() && window.top !== window.self) {
-    window.top.postMessage({action:'runTarotAction', fn: fn}, '*');
-  } else {
-    fn();
-  }
-}
-  document.getElementById('langSelect').addEventListener('change', function() {
-    var lang = this.value;
-    var gtLang = {
-      es: 'es',
-      en: 'en',
-      fr: 'fr',
-      de: 'de',
-      it: 'it'
-    };
-    var url = 'https://translate.google.com/translate?hl=' + gtLang[lang] + '&sl=es&tl=' + gtLang[lang] + '&u=' + encodeURIComponent(window.location.href);
-    window.open(url, '_blank');
-  });
-</script>
   </header>
 
   <main>
@@ -279,6 +279,12 @@ function runInTopFrame(fn) {
   </div>
 
 <script>
+  var inicioBtn = document.getElementById('inicioBtn');
+  if (inicioBtn) {
+    inicioBtn.addEventListener('click', function() {
+      window.location.href = 'index.html';
+    });
+  }
 /** ========= MAZO COMPLETO (igual que antes, condensado) ========= */
 const SUITS = [
   { key:'Bastos',  glyph:'🪄', color:'#ffb703', tone:'acción, impulso, creatividad' },
@@ -646,6 +652,7 @@ function buildDeepNarrative(cards){
     : `Todo en el plano práctico (Menores): foco en hábitos, tareas y coordinación.`}
     ${reversedCount?` — Invertidas: ${reversedCount}/${cards.length} (energía cruzada o bloqueada a revisar).`:''}`);
   // ...existing code...
+// ...existing code...
 // === FUNCIONES GLOBALES ===
 window.computeStats = function(cards){
   const majors = cards.filter(c=>c.arcana==='Mayor');
@@ -818,5 +825,97 @@ function capitalizar(str){ return str ? str.charAt(0).toUpperCase() + str.slice(
 function stripHTML(html){ const d = document.createElement('div'); d.innerHTML = html; return d.textContent || d.innerText || ''; }
 </script>
 </body>
-</html>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const resources = {
+    es: {
+      translation: {
+        "Inicio": "Inicio",
+        "Carta diaria (1)": "Carta diaria (1)",
+        "Tirada completa (7)": "Tirada completa (7)",
+        "Permitir cartas invertidas": "Permitir cartas invertidas",
+        "Copiar lectura": "Copiar lectura",
+        "Imprimir / PDF": "Imprimir / PDF",
+        "Cerrar": "✕"
+      }
+    },
+    en: {
+      translation: {
+        "Inicio": "Home",
+        "Carta diaria (1)": "Daily card (1)",
+        "Tirada completa (7)": "Full spread (7)",
+        "Permitir cartas invertidas": "Allow reversed cards",
+        "Copiar lectura": "Copy reading",
+        "Imprimir / PDF": "Print / PDF",
+        "Cerrar": "✕"
+      }
+    },
+    fr: {
+      translation: {
+        "Inicio": "Accueil",
+        "Carta diaria (1)": "Carte du jour (1)",
+        "Tirada completa (7)": "Tirage complet (7)",
+        "Permitir cartas invertidas": "Permettre les cartes inversées",
+        "Copiar lectura": "Copier la lecture",
+        "Imprimir / PDF": "Imprimer / PDF",
+        "Cerrar": "✕"
+      }
+    },
+    de: {
+      translation: {
+        "Inicio": "Startseite",
+        "Carta diaria (1)": "Tageskarte (1)",
+        "Tirada completa (7)": "Komplettes Legen (7)",
+        "Permitir cartas invertidas": "Umgekehrte Karten erlauben",
+        "Copiar lectura": "Lesung kopieren",
+        "Imprimir / PDF": "Drucken / PDF",
+        "Cerrar": "✕"
+      }
+    },
+    it: {
+      translation: {
+        "Inicio": "Inizio",
+        "Carta diaria (1)": "Carta del giorno (1)",
+        "Tirada completa (7)": "Stesura completa (7)",
+        "Permitir cartas invertidas": "Permetti carte invertite",
+        "Copiar lectura": "Copia lettura",
+        "Imprimir / PDF": "Stampa / PDF",
+        "Cerrar": "✕"
+      }
+    }
+  };
 
+  i18next.init({
+    lng: 'es',
+    debug: false,
+    resources
+  }, function(err, t) {
+    updateContent();
+  });
+
+  function updateContent() {
+    var inicioBtn = document.getElementById('inicioBtn');
+    if (inicioBtn) inicioBtn.textContent = i18next.t('Inicio');
+    var dailyBtn = document.getElementById('dailyBtn');
+    if (dailyBtn) dailyBtn.textContent = i18next.t('Carta diaria (1)');
+    var fullBtn = document.getElementById('fullBtn');
+    if (fullBtn) fullBtn.textContent = i18next.t('Tirada completa (7)');
+    var revToggle = document.getElementById('revToggle');
+    if (revToggle && revToggle.parentElement && revToggle.parentElement.childNodes[1]) revToggle.parentElement.childNodes[1].textContent = i18next.t('Permitir cartas invertidas');
+    var copyBtn = document.getElementById('copyBtn');
+    if (copyBtn) copyBtn.textContent = i18next.t('Copiar lectura');
+    var pdfBtn = document.getElementById('pdfBtn');
+    if (pdfBtn) pdfBtn.textContent = i18next.t('Imprimir / PDF');
+    var closeModal = document.getElementById('closeModal');
+    if (closeModal) closeModal.textContent = i18next.t('Cerrar');
+  }
+
+  var langSelect = document.getElementById('langSelect');
+  if (langSelect) {
+    langSelect.addEventListener('change', function(e) {
+      i18next.changeLanguage(e.target.value, updateContent);
+    });
+  }
+});
+</script>
+</html>
