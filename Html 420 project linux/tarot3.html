@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tirada de Tarot — Mazo Completo (1 y 7, invertidas, copiar & PDF)</title>
+<button onclick="location.href='index.html'" style="background:var(--accent);color:#fff;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;">Inicio</button>
+<style>
+  :root{
+    --bg:#0f1117; --panel:#151a22; --card:#1b2130; --ink:#e8eefc; --muted:#9aa6c5;
+    --accent:#7c9bff; --accent-2:#a1ffe4; --good:#1dd1a1; --warn:#ffd166;
+    --shadow: 0 12px 28px rgba(0,0,0,.35);
+    --radius:16px; --radius-sm:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family: Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif; color:var(--ink);
+    background:
+      radial-gradient(900px 600px at 100% -10%, rgba(124,155,255,.10), transparent 60%),
+      radial-gradient(800px 500px at 0% 110%, rgba(161,255,228,.08), transparent 60%),
+      var(--bg);
+  }
+  header{
+    padding: clamp(16px,2vw,24px);
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .logo{
+    width:44px; height:44px; border-radius:12px; color:#0b0e14; font-weight:900;
+    display:grid; place-items:center; box-shadow: var(--shadow);
+    background: conic-gradient(from 200deg, var(--accent), #b6c6ff 40%, #c9ffe6 75%, var(--accent-2));
+  }
+  .title{margin:0; font-size: clamp(20px, 2.6vw, 28px);}
+  .subtitle{color:var(--muted); font-size:14px}
+  main{max-width:1100px; margin:0 auto; padding: 0 clamp(12px,2vw,20px) 26px}
+  .grid{display:grid; gap:18px; grid-template-columns: 1fr;}
+  @media (min-width: 980px){ .grid{grid-template-columns: 1.25fr .75fr} }
+  .card-panel{
+    background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 55%), var(--panel);
+    border:1px solid rgba(255,255,255,.07);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding:18px;
+  }
+  .section-title{margin:0 0 10px 0; font-size:18px}
+  .controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .btn{
+    appearance:none; border:none; border-radius: 999px; padding:12px 16px; cursor:pointer; font-weight:800;
+    background: linear-gradient(180deg, #dfe6ff, #b9c8ff); color:#0c1020; box-shadow: 0 14px 28px rgba(124,155,255,.35);
+    transition: transform .15s ease, filter .15s ease;
+  }
+  .btn:hover{ transform: translateY(-1px); filter: brightness(1.03)}
+  .btn:active{ transform: translateY(0)}
+  .hint{color:var(--muted); font-size:13px}
+  .toggle{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted)}
+  .toolbar{ display:flex; gap:8px; align-items:center; flex-wrap:wrap }
+
+  /* Mesa / animación */
+  .table{
+    position:relative; min-height:420px; border-radius: var(--radius);
+    background: radial-gradient(1200px 500px at 50% -40%, rgba(124,155,255,.08), transparent 60%), #0f141f;
+    border:1px dashed rgba(255,255,255,.08);
+    overflow:hidden;
+  }
+  .deck-area{
+    position:relative; padding:16px; display:grid; gap:14px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));  /* Auto-wrap */
+    align-items:start;
+  }
+
+  /* Carta física */
+  .tarot{
+    --w: 110px; --h: 176px;
+    width:var(--w); height:var(--h);
+    transform-origin: 50% 50%;
+    border-radius: 12px;
+    background: linear-gradient(160deg, #212a3c, #182030);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow: 0 10px 22px rgba(0,0,0,.45);
+    backface-visibility: hidden;
+    position: relative;
+    margin: 0 auto;
+  }
+  .tarot .back{
+    position:absolute; inset:0; border-radius: 12px;
+    background:
+      radial-gradient(circle at 50% 20%, rgba(124,155,255,.5), transparent 40%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.08) 0 6px, transparent 6px 12px),
+      linear-gradient(180deg, #1d2536, #121a2b);
+    display:grid; place-items:center; color:#cfe0ff; font-weight:900; letter-spacing:2px;
+  }
+  .tarot .face{
+    position:absolute; inset:0; border-radius: 12px; padding:8px; display:flex; flex-direction:column; gap:4px;
+    background: linear-gradient(180deg, #1b2334, #121a22);
+    border:1px solid rgba(255,255,255,.1);
+    transform: rotateY(180deg);
+  }
+  .tarot .name{font-weight:800; letter-spacing:.5px; font-size:12px; line-height:1.1}
+  .tarot .roman{font-weight:900; color:#a9b9ff; font-size:12px}
+  .tarot .glyph{font-size:20px; text-align:center}
+  .tarot .art{flex:1 1 auto; display:grid; place-items:center; overflow:hidden; border-radius:8px; background:#0f1524; border:1px solid rgba(255,255,255,.08)}
+  .tarot .art img{width:100%; height:100%; object-fit:contain}
+  .tarot.flip{ animation: flip .7s ease forwards; }
+  @keyframes flip{
+    0%{ transform: rotateY(0) scale(1) }
+    50%{ transform: rotateY(90deg) scale(1.06) }
+    100%{ transform: rotateY(180deg) scale(1) }
+  }
+  /* Orientación (invertidas) */
+  .orient{ width:100%; height:100%; transform-origin:center; }
+  .orient.rev{ transform: rotate(180deg); }
+
+  /* Resultado */
+  .result{ display:grid; gap:12px; margin-top:12px }
+  .result-card{
+    display:flex; gap:14px; align-items:center; background: var(--card);
+    border:1px solid rgba(255,255,255,.08); border-radius: var(--radius-sm); padding:12px;
+  }
+  .mini{
+    width:70px; height:112px; border-radius:10px; flex:0 0 auto; cursor: zoom-in;
+    background: linear-gradient(180deg, #1b2334, #121a22); border:1px solid rgba(255,255,255,.1);
+    display:flex; flex-direction:column; justify-content:space-between; padding:6px;
+  }
+  .mini .roman{font-size:12px; color:#a9b9ff}
+  .mini .name{font-size:12px}
+  .mini .glyph{font-size:18px; text-align:center}
+  .mini .art{ height:56px; border-radius:6px; border:1px solid rgba(255,255,255,.08); display:grid; place-items:center; background:#0f1524}
+  .mini .art img{ width:100%; height:100%; object-fit:contain}
+  .mini.rev img{ transform: rotate(180deg); }
+  .desc{color:#d7e2ff}
+  .muted{color:var(--muted)}
+
+  /* Lista de 7 posiciones */
+  .spread{ display:grid; gap:10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .pos-row{ display:flex; gap:12px; align-items:flex-start; background:var(--card); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius-sm); padding:10px; }
+  .pos-label{ font-size:12px; color:var(--muted); margin-bottom:4px }
+
+  /* Historial */
+  .history{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px }
+  .history .item{
+    display:flex; gap:10px; align-items:center; background: #101625; border:1px solid rgba(255,255,255,.05);
+    padding:10px; border-radius:12px;
+  }
+  .stamp{font-size:12px; color:var(--muted); white-space:nowrap}
+
+  /* Modal zoom */
+  .modal{position:fixed; inset:0; display:none; place-items:center; background: rgba(4,6,12,.65); z-index:50}
+  .modal.open{display:grid}
+  .modal-card{
+    width:min(92vw, 420px); height:min(92vh, 640px); background: #0f1524; border-radius:16px;
+    border:1px solid rgba(255,255,255,.1); box-shadow: var(--shadow); position:relative; overflow:hidden;
+    animation: pop .18s ease;
+  }
+  @keyframes pop{from{transform: scale(.96); opacity:0}to{transform:scale(1); opacity:1}}
+  .close{
+    position:absolute; top:10px; right:10px; border:none; background:rgba(255,255,255,.1);
+    width:36px; height:36px; display:grid; place-items:center; border-radius:999px; color:#fff; cursor:pointer;
+  }
+  .modal-body{padding:14px; display:flex; flex-direction:column; gap:10px; height:100%}
+  .big{
+    flex:1 1 auto; border-radius:14px; border:1px solid rgba(255,255,255,.1);
+    background: linear-gradient(180deg, #1b2334, #121a22); display:flex; flex-direction:column; padding:12px;
+  }
+  .big .roman{opacity:.9} .big .glyph{font-size:18px; text-align:center; margin:4px 0}
+  .big .name{font-size:18px}
+  .big .art{ flex:1 1 auto; border-radius:12px; background:#0f1524; border:1px solid rgba(255,255,255,.08); display:grid; place-items:center; overflow:hidden }
+  .big .art img{ width:100%; height:100%; object-fit:contain }
+  .meaning{background:#0c1222; border:1px solid rgba(255,255,255,.08); padding:10px; border-radius:12px; color:#cfe0ff; font-size:14px}
+
+  /* Impresión (PDF) */
+  @media print{
+    body{ background:#fff; color:#000; }
+    header .controls, header .hint, .hint, .toolbar, .close { display:none !important; }
+    .card-panel{ box-shadow:none; background:#fff; border:1px solid #ccc; }
+    .table{ border:none; background:#fff; }
+    .deck-area{ gap:10px; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
+    .result .meaning{ color:#000; border-color:#ddd; background:#fff; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;">
+      <div class="brand" style="display:flex;align-items:center;gap:18px;">
+        <div class="logo">🔮</div>
+        <div>
+          <h1 class="title">Tirada de Tarot — Mazo completo</h1>
+          <div class="subtitle">Carta diaria o tirada de 7, con invertidas opcionales, copiar y PDF sin librerías.</div>
+        </div>
+      </div>
+      <div style="margin-right:8px;">
+        <select id="langSelect" style="padding:8px 14px;border-radius:8px;font-size:1em;">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="it">Italiano</option>
+        </select>
+      </div>
+    </div>
+    <div class="controls">
+      <button id="dailyBtn" class="btn" aria-label="Tirar una carta diaria">Carta diaria (1)</button>
+      <button id="fullBtn" class="btn" aria-label="Tirada completa de siete cartas">Tirada completa (7)</button>
+      <label class="toggle"><input type="checkbox" id="revToggle"> Permitir cartas invertidas</label>
+      <span class="hint">Consejo: clic en cualquier carta para ampliarla</span>
+    </div>
+<script>
+  document.getElementById('langSelect').addEventListener('change', function() {
+    var lang = this.value;
+    var gtLang = {
+      es: 'es',
+      en: 'en',
+      fr: 'fr',
+      de: 'de',
+      it: 'it'
+    };
+    var url = 'https://translate.google.com/translate?hl=' + gtLang[lang] + '&sl=es&tl=' + gtLang[lang] + '&u=' + encodeURIComponent(window.location.href);
+    window.open(url, '_blank');
+  });
+</script>
+  </header>
+
+  <main>
+    <div class="grid">
+      <!-- Mesa de tirada -->
+      <section class="card-panel">
+        <div class="toolbar" style="justify-content:space-between; margin-bottom:8px">
+          <h2 class="section-title" style="margin:0">Mesa</h2>
+          <div class="toolbar">
+            <button id="copyBtn" class="btn" aria-label="Copiar lectura">Copiar lectura</button>
+            <button id="pdfBtn" class="btn" aria-label="Imprimir o guardar PDF">Imprimir / PDF</button>
+          </div>
+        </div>
+        <div class="table">
+          <div id="deck" class="deck-area" aria-live="polite" aria-label="Zona de baraja del tarot"></div>
+        </div>
+
+        <div id="result" class="result">
+          <div class="muted">Aún no hay tirada. Elige <b>Carta diaria</b> o <b>Tirada completa</b>.</div>
+        </div>
+      </section>
+
+      <!-- Historial -->
+      <aside class="card-panel">
+        <h2 class="section-title">Cartas de esta sesión</h2>
+        <div id="history" class="history">
+          <div class="muted">Aquí aparecerán las cartas que te salgan hoy.</div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Modal Zoom -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-label="Carta ampliada">
+    <div class="modal-card">
+      <button class="close" aria-label="Cerrar" id="closeModal">✕</button>
+      <div class="modal-body">
+        <div id="modalCard" class="big">
+          <div class="roman" id="mRoman">I</div>
+          <div class="glyph" id="mGlyph">★</div>
+          <div class="name" id="mName">El Mago</div>
+          <div class="art"><img id="mImg" alt=""></div>
+        </div>
+        <div class="meaning" id="mMeaning">Significado...</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/** ========= MAZO COMPLETO (igual que antes, condensado) ========= */
+const SUITS = [
+  { key:'Bastos',  glyph:'🪄', color:'#ffb703', tone:'acción, impulso, creatividad' },
+  { key:'Copas',   glyph:'🏺', color:'#4cc9f0', tone:'emociones, vínculos, intuición' },
+  { key:'Espadas', glyph:'🗡️', color:'#edf2f4', tone:'mente, decisiones, conflicto' },
+  { key:'Oros',    glyph:'🪙', color:'#95d5b2', tone:'materia, recursos, trabajo' },
+];
+
+const MAJORS = [
+  { n:0,  roman:"0",  name:"El Loco", glyph:"🃏", desc:"Comienzo, espontaneidad, salto de fe.", daily:"Atrévete a probar algo nuevo hoy; confía en tu intuición y mantén el corazón ligero." },
+  { n:1,  roman:"I",  name:"El Mago", glyph:"✴️", desc:"Voluntad, enfoque, manifestación.", daily:"Usa tus recursos con intención. Una idea puede hacerse realidad si das el primer paso." },
+  { n:2,  roman:"II", name:"La Suma Sacerdotisa", glyph:"🌙", desc:"Intuición, misterio, silencio.", daily:"Escucha lo que no se dice. Tu intuición te guía mejor que la lógica hoy." },
+  { n:3,  roman:"III",name:"La Emperatriz", glyph:"🌿", desc:"Abundancia, cuidado, creatividad.", daily:"Nutre tus proyectos y relaciones; un gesto amable florecerá rápidamente." },
+  { n:4,  roman:"IV", name:"El Emperador", glyph:"🏛️", desc:"Estructura, autoridad, límites.", daily:"Pon orden y define límites. Lidera con firmeza y claridad." },
+  { n:5,  roman:"V",  name:"El Sumo Sacerdote", glyph:"🔔", desc:"Tradición, aprendizaje, guía.", daily:"Busca consejo de alguien con experiencia o estudia una práctica que te atraiga." },
+  { n:6,  roman:"VI", name:"Los Enamorados", glyph:"💞", desc:"Elección, unión, valores.", daily:"Toma decisiones alineadas con tus valores. La armonía surge de la honestidad." },
+  { n:7,  roman:"VII",name:"El Carro", glyph:"🚗", desc:"Impulso, avance, victoria.", daily:"Enfoca tu energía: si tomas las riendas, hoy avanzas con fuerza." },
+  { n:8,  roman:"VIII",name:"La Fuerza", glyph:"🦁", desc:"Coraje, paciencia, compasión.", daily:"La suavidad vence. Respira hondo y actúa con calma y confianza." },
+  { n:9,  roman:"IX", name:"El Ermitaño", glyph:"🕯️", desc:"Búsqueda interior, retiro, sabiduría.", daily:"Date un momento de silencio. La respuesta aparece cuando te escuchas." },
+  { n:10, roman:"X",  name:"La Rueda de la Fortuna", glyph:"🎡", desc:"Ciclos, cambio, destino.", daily:"Acepta el giro de los acontecimientos; adapta tu plan y fluye con el cambio." },
+  { n:11, roman:"XI", name:"La Justicia", glyph:"⚖️", desc:"Verdad, equilibrio, responsabilidad.", daily:"Sé justo y claro. Una decisión objetiva te favorece si actúas con integridad." },
+  { n:12, roman:"XII",name:"El Colgado", glyph:"🪢", desc:"Perspectiva, pausa, entrega.", daily:"Mira la situación desde otro ángulo. Soltar te libera." },
+  { n:13, roman:"XIII",name:"La Muerte", glyph:"🦋", desc:"Fin, transformación, renacer.", daily:"Despide lo que ya cumplió su ciclo. Deja espacio para lo nuevo." },
+  { n:14, roman:"XIV",name:"La Templanza", glyph:"💧", desc:"Moderación, mezcla, armonía.", daily:"Equilibra tus tiempos. La paciencia crea el resultado que buscas." },
+  { n:15, roman:"XV", name:"El Diablo", glyph:"⛓️", desc:"Apegos, tentación, sombra.", daily:"Observa un hábito que te ata y elige una pequeña acción para aflojar esa cadena." },
+  { n:16, roman:"XVI",name:"La Torre", glyph:"⚡", desc:"Sacudida, revelación, ruptura.", daily:"Si algo se cae, es para mostrar la verdad. Reconstruye sobre lo auténtico." },
+  { n:17, roman:"XVII",name:"La Estrella", glyph:"⭐", desc:"Esperanza, guía, calma.", daily:"Mantén la fe: cuida tu energía y comparte tu luz con alguien cercano." },
+  { n:18, roman:"XVIII",name:"La Luna", glyph:"🌘", desc:"Emociones, sueños, intuición.", daily:"No todo es lo que parece. Descansa, anota tus sueños y evita decisiones impulsivas." },
+  { n:19, roman:"XIX",name:"El Sol", glyph:"🌞", desc:"Vitalidad, alegría, éxito.", daily:"Celebra un logro pequeño. La claridad llega y te impulsa a actuar." },
+  { n:20, roman:"XX", name:"El Juicio", glyph:"🎺", desc:"Despertar, evaluación, renacer.", daily:"Escucha la llamada: es buen día para comprometerte con una mejora personal." },
+  { n:21, roman:"XXI",name:"El Mundo", glyph:"🌍", desc:"Cierre, logro, integración.", daily:"Concluye lo pendiente. La meta está cerca: reconoce tu progreso." }
+];
+
+const RANKS = [
+  { key:'As', short:'A', kind:'pip' },{ key:'Dos', short:'2', kind:'pip' },{ key:'Tres', short:'3', kind:'pip' },{ key:'Cuatro', short:'4', kind:'pip' },
+  { key:'Cinco', short:'5', kind:'pip' },{ key:'Seis', short:'6', kind:'pip' },{ key:'Siete', short:'7', kind:'pip' },{ key:'Ocho', short:'8', kind:'pip' },
+  { key:'Nueve', short:'9', kind:'pip' },{ key:'Diez', short:'10', kind:'pip' },{ key:'Sota', short:'S', kind:'court' },{ key:'Caballo', short:'C', kind:'court' },
+  { key:'Reina', short:'Q', kind:'court' },{ key:'Rey', short:'K', kind:'court' },
+];
+
+const SUIT_MEANINGS = {
+  'Bastos': 'energía creativa, emprendimiento, impulso vital.',
+  'Copas': 'emociones, vínculos, empatía y sensibilidad.',
+  'Espadas': 'razón, claridad mental, conflicto y decisiones.',
+  'Oros': 'recursos, trabajo, cuerpo, resultados tangibles.',
+};
+const RANK_MEANINGS = {
+  'As':'semilla/ocurrencia, potencial puro.',
+  'Dos':'dualidad, decisión, equilibrio inicial.',
+  'Tres':'expansión, colaboración, primeros resultados.',
+  'Cuatro':'estructura, estabilidad, base.',
+  'Cinco':'tensión, prueba, ajuste.',
+  'Seis':'flujo, avance, armonización.',
+  'Siete':'evaluación, estrategia, paciencia.',
+  'Ocho':'práctica, movimiento, dedicación.',
+  'Nueve':'culminación parcial, autonomía.',
+  'Diez':'cierre de ciclo, peso/abundancia.',
+  'Sota':'aprendizaje, mensajes, curiosidad.',
+  'Caballo':'movimiento, cambio, búsqueda.',
+  'Reina':'madurez receptiva, cuidado, maestría interna.',
+  'Rey':'dirección, autoridad, maestría externa.',
+};
+
+const FULL_DECK = [
+  ...MAJORS.map(m => ({ id:`M${m.n}`, arcana:'Mayor', ...m, img: svgDataURL(svgMajor(m)) })),
+  ...SUITS.flatMap(suit => RANKS.map(r => {
+    const name = `${r.key} de ${suit.key}`;
+    const desc = `${RANK_MEANINGS[r.key]} (${SUIT_MEANINGS[suit.key]})`;
+    const daily = buildDailyMinor(r.key, suit.key);
+    return {
+      id:`${suit.key}-${r.key}`, arcana:'Menor', suit:suit.key, suitGlyph:suit.glyph, suitColor:suit.color,
+      rank:r.key, rankShort:r.short, kind:r.kind, name, glyph:suit.glyph, desc, daily,
+      roman: r.kind === 'court' ? r.key : r.short,
+      img: svgDataURL(svgMinor(suit, r))
+    };
+  }))
+];
+
+/** ====== Utilidades DOM & estado ====== */
+const $ = sel => document.querySelector(sel);
+const deckArea = $('#deck');
+const resultEl = $('#result');
+const historyEl = $('#history');
+const dailyBtn = $('#dailyBtn');
+const fullBtn  = $('#fullBtn');
+const revToggle = $('#revToggle');
+const copyBtn = $('#copyBtn');
+const pdfBtn = $('#pdfBtn');
+const modal = $('#modal');
+const closeModalBtn = $('#closeModal'); // <-- Declarada UNA sola vez
+const mRoman = $('#mRoman'), mGlyph = $('#mGlyph'), mName = $('#mName'), mMeaning = $('#mMeaning'), mImg = $('#mImg');
+
+let LAST_READING_TEXT = ''; // para copiar
+function rand(min,max){ return Math.random()*(max-min)+min; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] }
+function drawUnique(n, deck=FULL_DECK){
+  const pool = deck.slice(); const out = [];
+  for(let i=0;i<n;i++){ const idx = Math.floor(Math.random()*pool.length); out.push(pool.splice(idx,1)[0]); }
+  return out;
+}
+
+/** ====== SVGs ====== */
+function svgDataURL(svgString){
+  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+}
+function svgCardFrame(title, subtitle, glyph, accent='#7c9bff', body=''){
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="480" viewBox="0 0 300 480">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b2334"/><stop offset="1" stop-color="#121a22"/></linearGradient></defs>
+  <rect x="0" y="0" width="300" height="480" rx="20" fill="url(#g)" stroke="rgba(255,255,255,0.18)"/>
+  <g fill="${accent}"><rect x="16" y="62" width="268" height="1.5" opacity="0.6"/><rect x="16" y="418" width="268" height="1.5" opacity="0.6"/></g>
+  <text x="150" y="38" fill="#a9b9ff" font-size="18" font-family="Inter,Arial" text-anchor="middle">${subtitle||''}</text>
+  <text x="150" y="60" fill="#e8eefc" font-size="18" font-family="Inter,Arial" text-anchor="middle" font-weight="700">${title}</text>
+  <text x="150" y="100" fill="#e8eefc" font-size="48" font-family="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji" text-anchor="middle">${glyph||''}</text>
+  ${body}
+</svg>`.trim();
+}
+function svgMajor(m){
+  const body = `<g><circle cx="150" cy="250" r="86" fill="rgba(124,155,255,0.16)" stroke="#7c9bff" stroke-width="2"/><text x="150" y="252" fill="#cfe0ff" font-size="52" font-family="Inter,Arial" text-anchor="middle" font-weight="800">${m.roman}</text></g>`;
+  return svgCardFrame(m.name, `Arcano ${m.roman}`, m.glyph, '#7c9bff', body);
+}
+function svgMinor(suit, rank){
+  const color = suit.color; let body = '';
+  if(rank.kind === 'pip'){
+    const count = parseInt(rank.short,10);
+    const cols = count <= 3 ? count : (count <= 6 ? 3 : 4);
+    const rows = Math.ceil(count/cols);
+    const startX = 150 - (cols-1)*30, startY = 240 - (rows-1)*32;
+    let i=0;
+    for(let r=0; r<rows; r++){
+      for(let c=0; c<cols; c++){
+        if(i>=count) break;
+        const x = startX + c*60, y = startY + r*64;
+        body += `<text x="${x}" y="${y}" fill="${color}" font-size="28" text-anchor="middle" font-family="Segoe UI Emoji">${suit.glyph}</text>`;
+        i++;
+      }
+    }
+  }else{
+    body = `<g><rect x="95" y="180" width="110" height="140" rx="16" fill="rgba(255,255,255,0.06)" stroke="${color}" />
+      <text x="150" y="252" fill="${color}" font-size="60" font-family="Inter,Arial" text-anchor="middle" font-weight="800">${rank.short}</text>
+      <text x="150" y="298" fill="${color}" font-size="28" text-anchor="middle" font-family="Segoe UI Emoji">${suit.glyph}</text></g>`;
+  }
+  return svgCardFrame(`${rank.key} de ${suit.key}`, `${rank.kind==='pip'?'Número':'Figura'}`, suit.glyph, color, body);
+}
+
+/** ====== Construcción de cartas ====== */
+function buildMiniCard(data){
+  const wrap = document.createElement('div');
+  wrap.className = 'mini' + (data.reversed ? ' rev' : '');
+  wrap.innerHTML = `
+    <div class="roman">${data.roman ?? ''}${data.reversed ? ' ↕' : ''}</div>
+    <div class="art"><img alt="${data.name}${data.reversed?' (invertida)':''}" src="${data.img}"></div>
+    <div class="name">${data.name}${data.reversed ? ' (invertida)' : ''}</div>
+  `;
+  wrap.tabIndex = 0;
+  wrap.setAttribute('role','button');
+  wrap.setAttribute('aria-label', `Ampliar carta ${data.name}${data.reversed?' invertida':''}`);
+  wrap.addEventListener('click', ()=> openModal(data));
+  wrap.addEventListener('keydown', (e)=>{ if(e.key==='Enter') openModal(data) });
+  return wrap;
+}
+
+function buildFullCard(data){
+  const el = document.createElement('div');
+  el.className = 'tarot';
+  el.innerHTML = `
+    <div class="back">TAROT</div>
+    <div class="face">
+      <div class="orient ${data.reversed?'rev':''}">
+        <div class="roman">${data.roman ?? ''}${data.reversed ? ' ↕' : ''}</div>
+        <div class="glyph">${data.glyph ?? ''}</div>
+        <div class="art"><img alt="${data.name}${data.reversed?' (invertida)':''}" src="${data.img}"></div>
+        <div class="name">${data.name}${data.reversed ? ' (invertida)' : ''}</div>
+      </div>
+    </div>
+  `;
+  // activar flip con pequeño retardo si se desea en cascada
+  requestAnimationFrame(()=> el.classList.add('flip'));
+  return el;
+}
+
+/** ====== Resultados ====== */
+function renderResultDaily(cardData, dateStr){
+  resultEl.innerHTML = '';
+  const row = document.createElement('div');
+  row.className = 'result-card';
+
+  const thumb = buildMiniCard(cardData);
+  const text = document.createElement('div');
+  const meaning = meaningFor(cardData);
+  text.innerHTML = `
+    <div><b>${cardData.name}${cardData.reversed?' (invertida)':''}</b> <span class="muted">(${dateStr})</span></div>
+    <div class="desc">${baseDesc(cardData)}</div>
+    <div class="meaning" style="margin-top:8px">${meaning}</div>
+  `;
+
+  row.appendChild(thumb);
+  row.appendChild(text);
+  resultEl.appendChild(row);
+
+  // === NUEVO: Resumen breve al final ===
+  const synth = document.createElement('div');
+  synth.className = 'meaning';
+  synth.innerHTML = `<b>Resumen breve:</b> ${cardData.reversed
+    ? `Eje en sombra para ${cardData.name}: ${cardData.desc.toLowerCase()}. ${stripHTML(meaningFor(cardData))}`
+    : `${cardData.name}: ${cardData.desc}. ${cardData.daily}`}`;
+  resultEl.appendChild(synth);
+
+  LAST_READING_TEXT = `Carta diaria — ${dateStr}\n${cardData.name}${cardData.reversed?' (invertida)':''}\n${baseDesc(cardData)}\n${stripHTML(meaning)}`;
+  LAST_READING_TEXT += `\n---\nResumen breve: ${stripHTML(synth.innerText||synth.textContent||'')}`;
+}
+
+const POSITIONS = [
+  {key:'pos1', label:'1) Situación actual'},
+  {key:'pos2', label:'2) Desafío principal'},
+  {key:'pos3', label:'3) Raíz / Inconsciente'},
+  {key:'pos4', label:'4) Pasado reciente'},
+  {key:'pos5', label:'5) Guía / Consejo'},
+  {key:'pos6', label:'6) Acción inmediata'},
+  {key:'pos7', label:'7) Resultado probable (si sigues la guía)'},
+];
+
+function renderResultFull(cards, dateStr){
+  resultEl.innerHTML = '';
+
+  const header = document.createElement('div');
+  header.className = 'result-card';
+  header.innerHTML = `
+    <div><b>Tirada completa (7 cartas)</b> <span class="muted">— ${dateStr}</span><br>
+    <span class="muted">Estructura: ${POSITIONS.map(p=>p.label).join(' · ')}</span></div>
+  `;
+  resultEl.appendChild(header);
+
+  const list = document.createElement('div'); list.className = 'spread';
+
+  cards.forEach((card, i)=>{
+    const row = document.createElement('div'); row.className = 'pos-row';
+    const thumb = buildMiniCard(card);
+    const m = meaningFor(card);
+    const text = document.createElement('div');
+    text.innerHTML = `
+      <div class="pos-label">${POSITIONS[i].label}</div>
+      <div><b>${card.name}${card.reversed?' (invertida)':''}</b></div>
+      <div class="desc">${baseDesc(card)}</div>
+      <div class="meaning" style="margin-top:6px">${m}</div>
+    `;
+    row.appendChild(thumb); row.appendChild(text); list.appendChild(row);
+  });
+  resultEl.appendChild(list);
+
+  // Narrativa larga
+  const narrative = document.createElement('div');
+  narrative.className = 'meaning';
+  narrative.innerHTML = buildDeepNarrative(cards);
+  resultEl.appendChild(narrative);
+
+  // === NUEVO: Resumen breve al final ===
+  const summary = document.createElement('div');
+  summary.className = 'meaning';
+  summary.innerHTML = `<b>Resumen breve:</b> ${buildConciseSummary(cards)}`;
+  resultEl.appendChild(summary);
+
+  // texto para copiar (incluye resumen)
+  LAST_READING_TEXT = [
+    `Tirada completa — ${dateStr}`,
+    ...cards.map((c, i)=> `${POSITIONS[i].label}: ${c.name}${c.reversed?' (invertida)':''} — ${stripHTML(baseDesc(c))}. ${stripHTML(meaningFor(c))}`),
+    '---',
+    stripHTML(narrative.innerText || narrative.textContent || ''),
+    '---',
+    `Resumen breve: ${stripHTML(buildConciseSummary(cards))}`
+  ].join('\n');
+}
+
+/** ====== Historial ====== */
+function pushHistory(cardData){
+  // Log para depuración
+  console.log('pushHistory llamada:', cardData.name, cardData.reversed ? '(invertida)' : '', historyEl);
+  const item = document.createElement('div'); item.className = 'item';
+  const thumb = buildMiniCard(cardData);
+  const when = new Date(); const stamp = document.createElement('div');
+  stamp.innerHTML = `<div><b>${cardData.name}${cardData.reversed?' (invertida)':''}</b></div>
+  <div class="stamp">${when.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>`;
+  item.appendChild(thumb); item.appendChild(stamp);
+
+  const firstChild = historyEl.firstElementChild;
+  if(firstChild && firstChild.classList.contains('muted')) historyEl.innerHTML = '';
+  historyEl.prepend(item);
+}
+
+/** ====== Modal ====== */
+function openModal(cardData){
+  mRoman.textContent = (cardData.roman ?? '') + (cardData.reversed ? ' ↕' : '');
+  mGlyph.textContent = cardData.glyph ?? '';
+  mName.textContent  = cardData.name + (cardData.reversed ? ' (invertida)' : '');
+  mImg.src = cardData.img; mImg.alt = cardData.name + (cardData.reversed ? ' (invertida)' : '');
+  const m = meaningFor(cardData);
+  mMeaning.innerHTML = m;
+  modal.classList.add('open');
+}
+function closeModal(){ modal.classList.remove('open'); }
+closeModalBtn.addEventListener('click', closeModal);
+modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && modal.classList.contains('open')) closeModal(); });
+
+/** ====== Reparto (grid, con invertidas opcionales) ====== */
+async function dealToTable(cards, delay=120){
+  deckArea.innerHTML = '';
+  const dom = cards.map(card=>{
+    const el = buildFullCard(card);
+    deckArea.appendChild(el);
+    return el;
+  });
+  for (let i=0;i<dom.length;i++){ await wait(delay); dom[i].classList.add('flip'); }
+}
+
+/** ====== Invertidas y significados ====== */
+function withReversed(card){
+  const allow = revToggle.checked;
+  if(!allow) return {...card, reversed:false};
+  const reversed = Math.random() < 0.5; // 50% si está activado
+  return {...card, reversed};
+}
+
+function baseDesc(card){
+  return card.desc + (card.reversed ? ' (en sombra/bloqueo).' : '.');
+}
+
+function meaningFor(card){
+  // Heurística simple para invertidas: bloqueo, exceso o uso disfuncional del eje de la carta.
+  const normal = card.daily;
+  if(!card.reversed) return normal;
+  const axis = card.arcana==='Mayor'
+    ? 'la lección del Arcano se expresa en bloqueo o exceso'
+    : `el eje ${card.suit.toLowerCase()} aparece invertido: revisar hábitos y expectativas`;
+  const tip = card.arcana==='Mayor'
+    ? 'Reconoce el patrón y elige el gesto mínimo que lo invierte (un límite, una disculpa, o un sí/no claro).'
+    : ({
+        'Bastos':'Redirige la impulsividad: una acción pequeña sostenida es mejor que arranques fuertes.',
+        'Copas':'Pon nombre a la emoción y valida la del otro; evita idealizar/evitar.',
+        'Espadas':'Cuestiona la narrativa rígida; busca datos y reformula supuestos.',
+        'Oros':'Simplifica recursos/entregables; menos dispersión, más constancia.'
+      }[card.suit] || 'Ajusta la práctica cotidiana para que la energía fluya.');
+  return `Invertida: ${axis}. ${tip}`;
+}
+
+/** ====== Narrativa profunda ====== */
+function buildDailyMinor(rank, suit){
+  const suitLine = SUIT_MEANINGS[suit];
+  const rankLine = RANK_MEANINGS[rank];
+  return `Hoy destaca ${rank.toLowerCase()} en ${suit.toLowerCase()}: ${rankLine} Orienta tu energía hacia ${suitLine}`;
+}
+function buildDeepNarrative(cards){
+  const majors = cards.filter(c=>c.arcana==='Mayor');
+  const minors = cards.filter(c=>c.arcana==='Menor');
+  const reversedCount = cards.filter(c=>c.reversed).length;
+  const suitCount = { Bastos:0, Copas:0, Espadas:0, Oros:0 };
+  minors.forEach(c=> suitCount[c.suit]++);
+  const courts = minors.filter(c=>c.kind==='court');
+  const pips   = minors.filter(c=>c.kind==='pip');
+
+  const lines = [];
+
+  lines.push(`<b>Panorama general:</b> ${majors.length>0
+    ? `Hay ${majors.length} Arcano${majors.length>1?'s':''} Mayor${majors.length>1?'es':''}: decisiones y aprendizajes de fondo.`
+    : `Todo en el plano práctico (Menores): foco en hábitos, tareas y coordinación.`}
+    ${reversedCount?` — Invertidas: ${reversedCount}/${cards.length} (energía cruzada o bloqueada a revisar).`:''}`);
+  // ...existing code...
+// === FUNCIONES GLOBALES ===
+window.computeStats = function(cards){
+  const majors = cards.filter(c=>c.arcana==='Mayor');
+  const minors = cards.filter(c=>c.arcana==='Menor');
+  const reversedCount = cards.filter(c=>c.reversed).length;
+
+  const suits = ['Bastos','Copas','Espadas','Oros'];
+  const suitCount = Object.fromEntries(suits.map(s=>[s,0]));
+  minors.forEach(c=> suitCount[c.suit]++);
+
+  // dominante (si empate, el primero por orden)
+  let dominantSuit = null, dominantCount = -1;
+  for(const s of suits){
+    if(suitCount[s] > dominantCount){ dominantSuit = s; dominantCount = suitCount[s]; }
+  }
+  const suitDef = SUITS.find(x=>x.key===dominantSuit);
+  const dominantTone = dominantCount>0 && suitDef ? suitDef.tone : null;
+
+  return {
+    majorsCount: majors.length,
+    minorsCount: minors.length,
+    reversedCount,
+    dominantSuit,
+    dominantCount,
+    dominantTone,
+    pos: {
+      situation: cards[0],
+      challenge: cards[1],
+      root:      cards[2],
+      past:      cards[3],
+      guide:     cards[4],
+      action:    cards[5],
+      outcome:   cards[6],
+    }
+  };
+}
+
+window.buildConciseSummary = function(cards){
+  const s = computeStats(cards);
+  const {situation, challenge, root, guide, action, outcome} = s.pos;
+
+  // Frase 1: peso de la lectura + tema central
+  const f1 = s.majorsCount > 0
+    ? `Lectura con peso (hay ${s.majorsCount} Arcano${s.majorsCount>1?'s':''} Mayor${s.majorsCount>1?'es':''}): el foco actual es ${situation.name.toLowerCase()} — ${situation.desc.toLowerCase()}.`
+    : `Lectura práctica (Menores): el foco actual es ${situation.name.toLowerCase()} — ${situation.desc.toLowerCase()}.`;
+
+  // Frase 2: tono elemental (si existe dominante)
+  const f2 = s.dominantCount>0
+    ? `Predomina ${s.dominantSuit} (${s.dominantCount}): ${s.dominantTone}.`
+    : `No hay un elemento claramente dominante.`;
+
+  // Frase 3: desafío + raíz
+  const f3 = `Desafío: ${challenge.name}${challenge.reversed?' (invertida)':''} — ${challenge.desc.toLowerCase()}. Raíz: ${root.name}${root.reversed?' (invertida)':''} — ${root.desc.toLowerCase()}.`;
+
+  // Frase 4: guía (en luz siempre) + acción (ajustada a invertida)
+  const guideLine   = stripHTML(meaningFor(guide));
+  const actionLine  = stripHTML(meaningFor(action));
+  const f4 = `Guía: ${guide.name} → ${guideLine}. Acción: ${action.name}${action.reversed?' (invertida)':''} → ${actionLine}.`;
+
+  // Frase 5: resultado (condicional)
+  const outcomeLine = outcome.reversed
+    ? `Si aplicas la guía, ${outcome.name} (invertida) invita a destrabar su eje: ${outcome.desc.toLowerCase()}.`
+    : `Si aplicas la guía, ${outcome.name} apunta a ${outcome.desc.toLowerCase()}. ${outcome.daily}`;
+  const f5 = outcomeLine;
+
+  // Frase 6: invertidas (si relevantes)
+  const f6 = s.reversedCount ? `Ojo: ${s.reversedCount}/${cards.length} carta${s.reversedCount>1?'s':''} invertida${s.reversedCount>1?'s':''}; revisa bloqueos o excesos en esas posiciones.` : '';
+
+  return [f1,f2,f3,f4,f5,f6].filter(Boolean).join(' ');
+}
+
+  const suitOrder = Object.entries(suitCount).sort((a,b)=>b[1]-a[1]).filter(([,n])=>n>0);
+  if(suitOrder.length){
+    const [top,count] = suitOrder[0];
+    const tone = SUITS.find(s=>s.key===top).tone;
+    lines.push(`<b>Tono elemental:</b> predomina <b>${top}</b> (${count}) → ${tone}`);
+  }
+
+  lines.push(`<b>Nivel de concreción:</b> ${courts.length} figura${courts.length!==1?'s':''} (roles/personas) y ${pips.length} número${pips.length!==1?'s':''} (etapas/tareas).`);
+
+  const [c1,c2,c3,c4,c5,c6,c7] = cards;
+  const row = (lbl,c)=>`<b>${lbl}</b>: ${c.name}${c.reversed?' (invertida)':''} → <i>${c.desc.toLowerCase()}</i>. ${meaningFor(c)}`;
+  lines.push(`<b>Hilo por posiciones:</b>
+  <br>${row('Situación', c1)}
+  <br>${row('Desafío', c2)}
+  <br>${row('Raíz', c3)}
+  <br>${row('Pasado', c4)}
+  <br>${row('Guía', c5)}
+  <br>${row('Acción', c6)}
+  <br>${row('Resultado', c7)}`);
+
+  // Palabras clave (sencillo)
+  const keyWords = extractKeywords(cards.map(c=>c.desc).join(' ') + ' ' + cards.map(c=>c.daily).join(' '));
+  if(keyWords.length) lines.push(`<b>Palabras-clave:</b> ${keyWords.slice(0,7).join(' · ')}`);
+
+  // Praxis
+  lines.push(`<b>Acción práctica (24–72h):</b> ${suggestPraxis(cards)}`);
+
+  return lines.join('<br><br>');
+}
+function extractKeywords(text){
+  const stop = new Set('de la los las y a o un una en con del lo por para que el al su sus se es son si mas más menos sin ya muy como pero'.split(' '));
+  const tokens = (text||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').match(/[a-záéíóúñ]+/g) || [];
+  const freq = {}; for(const t of tokens){ if(!stop.has(t)){ freq[t]=(freq[t]||0)+1; } }
+  return Object.entries(freq).sort((a,b)=>b[1]-a[1]).map(([w])=>w);
+}
+function suggestPraxis(cards){
+  const has = name => cards.some(c=>c.name.includes(name));
+  if(has('La Templanza')) return 'Define un ritmo estable (bloques de trabajo + pausas). Evita extremos; mezcla enfoques.';
+  if(has('El Mago')) return 'Elige una meta observable y entrega un micro-prototipo hoy.';
+  if(has('La Torre')) return 'Haz limpieza estratégica: elimina lo superfluo y reordena sobre lo esencial.';
+  const suitDominant = ['Bastos','Copas','Espadas','Oros'].sort((a,b)=> (cards.filter(c=>c.suit===b).length - cards.filter(c=>c.suit===a).length ))[0];
+  switch(suitDominant){
+    case 'Bastos': return 'Canaliza energía en una tarea con impacto. Itera rápido y mide.';
+    case 'Copas': return 'Habla con la persona clave y alinea expectativas emocionales y prácticas.';
+    case 'Espadas': return 'Escribe la decisión (criterios, opciones, trade-offs) y elige.';
+    case 'Oros': return 'Ajusta recursos: presupuesto, materiales, siguiente hito verificable.';
+    default: return 'Da un paso pequeño, repetible, que puedas sostener 3 días seguidos.';
+  }
+}
+
+/** ====== Tiradas ====== */
+// Eliminado: no se usa bloqueo para relanzar tirada
+
+async function doDaily(){
+  // Permitir relanzar la tirada siempre
+  const base = pick(FULL_DECK);
+  const card = withReversed(base);
+  await dealToTable([card], 0);
+  const dateStr = capitalizar(new Date().toLocaleDateString(undefined, {weekday:'long', year:'numeric', month:'long', day:'numeric'}));
+  renderResultDaily(card, dateStr);
+  pushHistory(card);
+  drawing = false;
+}
+
+async function doFull(){
+  // Permitir relanzar la tirada siempre
+  deckArea.innerHTML = '';
+  resultEl.innerHTML = '';
+  historyEl.classList.remove('flash');
+  setTimeout(()=> historyEl.classList.add('flash'), 10);
+  const base = drawUnique(7, FULL_DECK);
+  const cards = base.map(withReversed);
+  await dealToTable(cards, 120);
+  const dateStr = capitalizar(new Date().toLocaleDateString(undefined, {weekday:'long', year:'numeric', month:'long', day:'numeric'}));
+  renderResultFull(cards, dateStr);
+  // Agregar cartas en orden directo (primera a última) y acumular en historial
+  for (let i = 0; i < cards.length; i++) pushHistory(cards[i]);
+  drawing = false;
+}
+
+/** ====== Copiar & PDF ====== */
+copyBtn.addEventListener('click', async ()=>{
+  try{
+    await navigator.clipboard.writeText(LAST_READING_TEXT || 'No hay lectura para copiar todavía.');
+    copyBtn.textContent = '¡Copiado!'; setTimeout(()=> copyBtn.textContent='Copiar lectura', 1200);
+  }catch(e){
+    alert('No se pudo copiar. Quizá el navegador bloqueó el acceso al portapapeles.');
+  }
+});
+pdfBtn.addEventListener('click', ()=> window.print());
+
+/** ====== Eventos ====== */
+dailyBtn.addEventListener('click', doDaily);
+fullBtn.addEventListener('click', doFull);
+
+/** ====== Helpers ====== */
+function wait(ms){ return new Promise(res=> setTimeout(res, ms)); }
+function capitalizar(str){ return str ? str.charAt(0).toUpperCase() + str.slice(1) : str; }
+function stripHTML(html){ const d = document.createElement('div'); d.innerHTML = html; return d.textContent || d.innerText || ''; }
+</script>
+</body>
+</html>
+

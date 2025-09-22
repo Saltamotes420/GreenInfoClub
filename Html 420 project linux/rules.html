@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Normas del Establecimiento</title>
+    <style>
+        :root {
+            --bg: #0f1113;
+            --panel: #141618;
+            --accent: #27ae60;
+            --muted: #9aa5a1;
+            --glass: rgba(255,255,255,0.03);
+            --card: #191b1d;
+        }
+        body {
+            margin: 0;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: linear-gradient(180deg,#071014 0%, var(--bg) 100%);
+            color: #e6efe9;
+        }
+        h1 {
+            font-size: 1.3rem;
+            margin: 38px 0 0 0;
+            font-weight: 600;
+            text-align: center;
+            color: var(--accent);
+        }
+        .rules-box {
+            background: var(--panel);
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 32px 24px;
+            box-shadow: 0 8px 26px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        p {
+            font-size: 1.08em;
+            color: #e6efe9;
+            margin: 0 0 18px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Selector de idioma Google Translate -->
+    <div id="lang-select" style="position:absolute;top:18px;right:24px;z-index:100;">
+      <select onchange="googleTranslateElementInit(this.value)" style="padding:8px 14px;border-radius:8px;font-weight:600;background:#fff;color:#222;border:1px solid #ccc;">
+        <option value="es">Español</option>
+        <option value="en">English</option>
+        <option value="fr">Français</option>
+        <option value="de">Deutsch</option>
+        <option value="it">Italiano</option>
+      </select>
+    </div>
+    <script type="text/javascript">
+    function googleTranslateElementInit(lang) {
+      if (!window.googleTranslateScriptLoaded) {
+        var gt = document.createElement('script');
+        gt.type = 'text/javascript';
+        gt.src = '//translate.google.com/translate_a/element.js?cb=initGoogleTranslate';
+        document.body.appendChild(gt);
+        window.googleTranslateScriptLoaded = true;
+      }
+      window.initGoogleTranslate = function() {
+        new google.translate.TranslateElement({
+          pageLanguage: 'es',
+          includedLanguages: 'en,fr,de,it,es',
+          autoDisplay: false,
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'google_translate_element');
+        if(lang && lang !== 'es') {
+          var select = document.querySelector('.goog-te-combo');
+          if(select) select.value = lang;
+          var event = document.createEvent('HTMLEvents');
+          event.initEvent('change', true, true);
+          select.dispatchEvent(event);
+        }
+      }
+      if(lang && window.google && window.google.translate) {
+        var select = document.querySelector('.goog-te-combo');
+        if(select) select.value = lang;
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('change', true, true);
+        select.dispatchEvent(event);
+      }
+    }
+    </script>
+    <div id="google_translate_element" style="display:none;"></div>
+    <div style="width:100%;display:flex;align-items:center;gap:18px;margin-top:18px;">
+        <button onclick="location.href='index.html'" style="background:var(--accent);color:#fff;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:1em;">Inicio</button>
+        <h1 style="margin:0 auto;">Normas del Establecimiento</h1>
+    </div>
+    <div class="rules-box">
+        <p>1. Respeta a todos los miembros y visitantes del establecimiento.</p>
+        <p>2. Está prohibido fumar en áreas no designadas.</p>
+        <p>3. Mantén la limpieza y orden en todas las instalaciones.</p>
+        <p>4. El consumo de productos está permitido solo para mayores de edad.</p>
+        <p>5. Sigue las indicaciones del personal en todo momento.</p>
+        <p>6. No se permite la entrada de bebidas alcohólicas externas.</p>
+        <p>7. Cuida y respeta el mobiliario y los recursos del local.</p>
+        <p>8. Ante cualquier duda, consulta con el personal autorizado.</p>
+    </div>
+</body>
+</html>
